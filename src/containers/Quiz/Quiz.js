@@ -23,8 +23,20 @@ export default class Quiz extends Component {
 				],
 			},
 			{
+				question: 'Какого цвета трава?',
+				rightAnswerId: 1,
+				id: 3,
+				answers: [
+					{text: 'Зеленый', id: 1},
+					{text: 'Синий', id: 2},
+					{text: 'Красный', id: 3},
+					{text: 'Черный', id: 4},
+				],
+			},
+			{
 				question: 'В каком году основали г.Харьков?',
 				rightAnswerId: 4,
+				id: 2,
 				answers: [
 					{text: '1660', id: 1},
 					{text: '1656', id: 2},
