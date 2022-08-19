@@ -6,6 +6,7 @@ import classes from './Quiz.module.css';
 export default class Quiz extends Component {
 	state = {
 		activeQuestion: 0,
+		answerState: null,
 		quiz: [
 			{
 				question: 'Какого цвета небо?',
@@ -31,11 +32,40 @@ export default class Quiz extends Component {
 	};
 
 	onAnswerClickHandler = (answerId) => {
-		this.setState((prevState) => {
-			return {
-				activeQuestion: prevState.activeQuestion + 1,
-			};
-		});
+		const question = this.state.quiz[this.state.activeQuestion];
+
+		if (question.rightAnswerId === answerId) {
+			this.setState((prevState) => {
+				return {
+					answerState: {[answerId]: 'success'},
+				};
+			});
+
+			const timeout = setTimeout(() => {
+				if (this.isQuizFinished()) {
+					console.log('Finished');
+				} else {
+					this.setState((prevState) => {
+						return {
+							activeQuestion: prevState.activeQuestion + 1,
+							answerState: null,
+						};
+					});
+				}
+
+				clearTimeout(timeout);
+			}, 500);
+		} else {
+			this.setState((prevState) => {
+				return {
+					answerState: {[answerId]: 'error'},
+				};
+			});
+		}
+	};
+
+	isQuizFinished = () => {
+		return this.state.activeQuestion + 1 === this.state.quiz.length;
 	};
 
 	render() {
@@ -49,6 +79,7 @@ export default class Quiz extends Component {
 						onAnswerClick={this.onAnswerClickHandler}
 						quizLength={this.state.quiz.length}
 						questionNumber={this.state.activeQuestion + 1}
+						answerState={this.state.answerState}
 					/>
 				</div>
 			</div>
