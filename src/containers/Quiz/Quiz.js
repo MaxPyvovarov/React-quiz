@@ -71,10 +71,8 @@ export default class Quiz extends Component {
 
 			const timeout = setTimeout(() => {
 				if (this.isQuizFinished()) {
-					this.setState((prevState) => {
-						return {
-							isFinished: true,
-						};
+					this.setState({
+						isFinished: true,
 					});
 				} else {
 					this.setState((prevState) => {
@@ -89,11 +87,9 @@ export default class Quiz extends Component {
 			}, 500);
 		} else {
 			results[question.id] = 'error';
-			this.setState((prevState) => {
-				return {
-					answerState: {[answerId]: 'error'},
-					results,
-				};
+			this.setState({
+				answerState: {[answerId]: 'error'},
+				results,
 			});
 		}
 	};
