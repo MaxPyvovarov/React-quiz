@@ -3,6 +3,7 @@ import Button from '../../components/UI/Button/Button';
 import {createControl, validate, validateForm} from '../../form/formFramework';
 import Input from '../../components/UI/Input/Input';
 import Select from '../../components/UI/Select/Select';
+import axios from '../../axios/axios-quiz';
 
 import classes from './QuizCreator.module.css';
 
@@ -45,7 +46,7 @@ export default class QuizCreator extends Component {
 		event.preventDefault();
 	};
 
-	addQuestionHandler = event => {
+	addQuestionHandler = () => {
 		const quiz = this.state.quiz.concat();
 		const index = quiz.length + 1;
 
@@ -74,12 +75,20 @@ export default class QuizCreator extends Component {
 		});
 	};
 
-	createQuizHandler = event => {
+	createQuizHandler = async event => {
 		event.preventDefault();
 
-		console.log(this.state.quiz);
-
-		// TODO: Server
+		try {
+			await axios.post('/quizes.json', this.state.quiz);
+			this.setState({
+				quiz: [],
+				isFormValid: false,
+				formControls: createFormControls(),
+				rightAnswerId: 1,
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	changeHandler = (value, controlName) => {
@@ -101,7 +110,7 @@ export default class QuizCreator extends Component {
 	selectChangeHandler = event => {
 		console.log(event.target.value);
 		this.setState({
-			rightAnswerId: event.target.value,
+			rightAnswerId: +event.target.value,
 		});
 	};
 

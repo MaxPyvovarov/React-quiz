@@ -3,19 +3,21 @@ import AnswerItem from './AnswerItem/AnswerItem';
 
 import classes from './AnswersList.module.css';
 
-const AnswersList = (props) => (
-	<ul className={classes.AnswersList}>
-		{props.answers.map((answer, index) => {
-			return (
-				<AnswerItem
-					key={index}
-					answer={answer}
-					onAnswerClick={props.onAnswerClick}
-					answerState={props.answerState ? props.answerState[answer.id] : null}
-				/>
-			);
-		})}
-	</ul>
-);
+const AnswersList = props => {
+	return (
+		<ul className={classes.AnswersList}>
+			{props.answers.map((answer, index) => {
+				return (
+					<AnswerItem
+						key={index}
+						answer={answer}
+						onAnswerClick={props.onAnswerClick}
+						state={props.state ? props.state[answer.id.number] : null}
+					/>
+				);
+			})}
+		</ul>
+	);
+};
 
 export default AnswersList;

@@ -1,56 +1,25 @@
 import React, {Component} from 'react';
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz';
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz';
+import axios from '../../axios/axios-quiz';
 
 import classes from './Quiz.module.css';
+import Loader from '../../components/UI/Loader/Loader';
 
 export default class Quiz extends Component {
 	state = {
-		results: {}, // { [id]: 'success' 'error'}
+		results: {},
 		isFinished: false,
 		activeQuestion: 0,
-		answerState: null, // { [id]: 'success' 'error'}
-		quiz: [
-			{
-				question: 'Какого цвета небо?',
-				rightAnswerId: 2,
-				id: 1,
-				answers: [
-					{text: 'Черный', id: 1},
-					{text: 'Синий', id: 2},
-					{text: 'Красный', id: 3},
-					{text: 'Зеленый', id: 4},
-				],
-			},
-			{
-				question: 'Какого цвета трава?',
-				rightAnswerId: 1,
-				id: 3,
-				answers: [
-					{text: 'Зеленый', id: 1},
-					{text: 'Синий', id: 2},
-					{text: 'Красный', id: 3},
-					{text: 'Черный', id: 4},
-				],
-			},
-			{
-				question: 'В каком году основали г.Харьков?',
-				rightAnswerId: 4,
-				id: 2,
-				answers: [
-					{text: '1660', id: 1},
-					{text: '1656', id: 2},
-					{text: '1650', id: 3},
-					{text: '1654', id: 4},
-				],
-			},
-		],
+		state: null,
+		quiz: [],
+		loading: true,
 	};
 
-	onAnswerClickHandler = (answerId) => {
-		if (this.state.answerState) {
-			const key = Object.keys(this.state.answerState)[0];
-			if (this.state.answerState[key] === 'success') {
+	onAnswerClickHandler = answerId => {
+		if (this.state.state) {
+			const key = Object.keys(this.state.state)[0];
+			if (this.state.state[key] === 'success') {
 				return;
 			}
 		}
@@ -58,37 +27,33 @@ export default class Quiz extends Component {
 		const question = this.state.quiz[this.state.activeQuestion];
 		const results = this.state.results;
 
-		if (question.rightAnswerId === answerId) {
+		if (question.rightAnswerId === answerId.number) {
 			if (!results[question.id]) {
 				results[question.id] = 'success';
 			}
-			this.setState((prevState) => {
-				return {
-					answerState: {[answerId]: 'success'},
-					results,
-				};
+
+			this.setState({
+				state: {[answerId.number]: 'success'},
+				results,
 			});
 
-			const timeout = setTimeout(() => {
+			const timeout = window.setTimeout(() => {
 				if (this.isQuizFinished()) {
 					this.setState({
 						isFinished: true,
 					});
 				} else {
-					this.setState((prevState) => {
-						return {
-							activeQuestion: prevState.activeQuestion + 1,
-							answerState: null,
-						};
+					this.setState({
+						activeQuestion: this.state.activeQuestion + 1,
+						state: null,
 					});
 				}
-
-				clearTimeout(timeout);
-			}, 500);
+				window.clearTimeout(timeout);
+			}, 1000);
 		} else {
 			results[question.id] = 'error';
 			this.setState({
-				answerState: {[answerId]: 'error'},
+				state: {[answerId.number]: 'error'},
 				results,
 			});
 		}
@@ -99,15 +64,25 @@ export default class Quiz extends Component {
 	};
 
 	onRetryHandler = () => {
-		this.setState((prevState) => {
-			return {
-				activeQuestion: 0,
-				answerState: null,
-				isFinished: false,
-				results: {},
-			};
+		this.setState({
+			activeQuestion: 0,
+			state: null,
+			isFinished: false,
+			results: {},
 		});
 	};
+
+	async componentDidMount() {
+		try {
+			const response = await axios.get(
+				`/quizes/${this.props.match.params.id}.json`
+			);
+			const quiz = response.data;
+			this.setState({quiz, loading: false});
+		} catch (error) {
+			console.log(error);
+		}
+	}
 
 	render() {
 		return (
@@ -115,7 +90,9 @@ export default class Quiz extends Component {
 				<div className={classes.QuizWrapper}>
 					<h1>Ответьте на все вопросы</h1>
 
-					{this.state.isFinished ? (
+					{this.state.loading ? (
+						<Loader />
+					) : this.state.isFinished ? (
 						<FinishedQuiz
 							results={this.state.results}
 							quiz={this.state.quiz}
@@ -128,7 +105,7 @@ export default class Quiz extends Component {
 							onAnswerClick={this.onAnswerClickHandler}
 							quizLength={this.state.quiz.length}
 							questionNumber={this.state.activeQuestion + 1}
-							answerState={this.state.answerState}
+							state={this.state.state}
 						/>
 					)}
 				</div>
